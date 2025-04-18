@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HAWA - Lie Detector</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive;
+      background: linear-gradient(to bottom right, #ffb6c1, #ff69b4);
+      text-align: center;
+      color: white;
+      padding: 50px;
+    }
+    h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 5px #ff1493;
+    }
+    button {
+      padding: 15px 35px;
+      font-size: 1.3em;
+      background: #ff1493;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: #ff6fb0;
+      transform: scale(1.05);
+    }
+    .scanner, #avatar {
+      margin: 30px auto;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+      background: radial-gradient(circle, #fff0f5, #ff1493);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.5s ease-in-out;
+    }
+    #avatar {
+      width: 120px;
+      animation: wiggle 1s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes wiggle {
+      0% { transform: rotate(0); }
+      25% { transform: rotate(3deg); }
+      50% { transform: rotate(-3deg); }
+      75% { transform: rotate(3deg); }
+      100% { transform: rotate(0); }
+    }
+    .visible {
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+    .dots::after {
+      content: '';
+      display: inline-block;
+      animation: dots 1.5s steps(3, end) infinite;
+    }
+    @keyframes dots {
+      0% { content: ''; }
+      33% { content: '.'; }
+      66% { content: '..'; }
+      100% { content: '...'; }
+    }
+    #loadingText, #result, #heartMessage, #crushReveal {
+      font-size: 1.3em;
+      margin-top: 20px;
+    }
+    #crushReveal {
+      color: #ffffcc;
+      font-size: 1.5em;
+      animation: bounceIn 1.5s ease-in-out;
+      display: none;
+    }
+    @keyframes bounceIn {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    #truthMeterBar {
+      width: 80%;
+      background: #ffddee;
+      height: 20px;
+      border-radius: 10px;
+      margin: 20px auto;
+      overflow: hidden;
+      display: none;
+    }
+    #truthMeterFill {
+      height: 100%;
+      width: 0%;
+      border-radius: 10px;
+      background: limegreen;
+      transition: width 2.5s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <h1>HAWA - Lie Detector</h1>
+  <div class="scanner" id="scanner"></div>
+  <img id="avatar" src="" alt="avatar" />
+  <div id="loadingText" class="dots"></div>
+  <div id="truthMeterBar"><div id="truthMeterFill"></div></div>
+  <button onclick="startScan()">Start Scan</button>
+  <div id="result"></div>
+  <div id="heartMessage"></div>
+  <div id="crushReveal"></div>
+
+  <!-- Sounds -->
+  <audio id="beepSound" src=""></audio>
+  <audio id="popSound" src=""></audio>
+  <audio id="flirtSound" src=""></audio>
+  <audio id="loveSound" src=""></audio>
+
+  <script>
+    const results = [
+      "She misses you 120% — alert the heart police!",
+      "Detected: excessive cuteness. Must be missing someone!",
+      "Scanner broke from too much love energy!",
+      "Danger: Love overload detected!",
+      "She’s pretending not to miss you, but the scanner knows!",
+      "Her heart whispered your name just now!"
+    ];
+
+    const heartMessages = [
+      "You're the reason I smile at my phone like an idiot.",
+      "Even Google can’t find someone like you.",
+      "You're like a software bug — always in her mind!",
+      "Every heartbeat says: where is he?",
+      "If missing you was a job, she'd be CEO."
+    ];
+
+    const crushes = [
+      "Crush Identified: YOU!",
+      "She totally likes you!",
+      "Love alert! It’s YOU, silly!",
+      "Her heart belongs to... guess who? YOU!",
+      "She blushes when she sees your name."
+    ];
+
+    const loadingTexts = [
+      "Warming up sensors",
+      "Analyzing vibes",
+      "Scanning heartbeats",
+      "Reading her smile frequency"
+    ];
+
+    function startScan() {
+      const beep = document.getElementById('beepSound');
+      const pop = document.getElementById('popSound');
+      const flirt = document.getElementById('flirtSound');
+      const love = document.getElementById('loveSound');
+
+      beep.play();
+
+      document.getElementById('scanner').classList.add('visible');
+      document.getElementById('avatar').classList.add('visible');
+      document.getElementById('truthMeterBar').style.display = 'block';
+      document.getElementById('truthMeterFill').style.width = '0%';
+      document.getElementById('result').innerText = '';
+      document.getElementById('heartMessage').innerText = '';
+      document.getElementById('crushReveal').style.display = 'none';
+
+      setTimeout(() => {
+        document.getElementById('truthMeterFill').style.width = '100%';
+      }, 300);
+
+      let i = 0;
+      const loadingText = document.getElementById('loadingText');
+      const interval = setInterval(() => {
+        if (i < loadingTexts.length) {
+          loadingText.innerText = loadingTexts[i++];
+        }
+      }, 800);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        document.getElementById('scanner').classList.remove('visible');
+        document.getElementById('avatar').classList.remove('visible');
+        document.getElementById('loadingText').innerText = '';
+        document.getElementById('truthMeterBar').style.display = 'none';
+
+        pop.play();
+        flirt.play();
+        setTimeout(() => love.play(), 1000);
+
+        document.getElementById('result').innerText = results[Math.floor(Math.random() * results.length)];
+        document.getElementById('heartMessage').innerText = `"${heartMessages[Math.floor(Math.random() * heartMessages.length)]}"`;
+        const crush = document.getElementById('crushReveal');
+        crush.innerText = crushes[Math.floor(Math.random() * crushes.length)];
+        crush.style.display = 'block';
+      }, 4000);
+    }
+
+    window.addEventListener('beforeunload', function () {
+      alert("I drew what I saw 🤓🤣🤣🤣");
+    });
+  </script>
+</body>
+</html>
